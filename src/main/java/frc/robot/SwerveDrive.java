@@ -3,7 +3,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,8 +14,8 @@ public class SwerveDrive extends SubsystemBase{
 
     private final StructArrayPublisher<SwerveModuleState> publisher; 
 
-    double chasisHeight = Units.inchesToMeters(60); 
-    double chasisWidth = Units.inchesToMeters(60); 
+    double chasisHeight = 0.60; 
+    double chasisWidth = 0.60; 
 
     Translation2d frontleft = new Translation2d(chasisHeight / 2, chasisWidth / 2);
     Translation2d frontRight = new Translation2d(chasisHeight / 2, -chasisWidth / 2);
