@@ -34,12 +34,17 @@ public class SwerveDrive extends SubsystemBase{
 
     public void setStates(ChassisSpeeds desired){
         SwerveModuleState[] newStates = kinematics.toSwerveModuleStates(desired);
-        swerveArray[0].updateState(newStates[0]);
-        swerveArray[1].updateState(newStates[1]);
-        swerveArray[2].updateState(newStates[2]);
-        swerveArray[3].updateState(newStates[3]);
+        swerveArray[0].updateDesiredState(newStates[0]);
+        swerveArray[1].updateDesiredState(newStates[1]);
+        swerveArray[2].updateDesiredState(newStates[2]);
+        swerveArray[3].updateDesiredState(newStates[3]);
+    }
 
-        swerveArray[0].getState().optimize(swerveArray[0].getState().angle);
+    public void updateModules(){
+        swerveArray[0].Update();
+        swerveArray[1].Update();
+        swerveArray[2].Update();
+        swerveArray[3].Update();
     }
     
     public SwerveDrive(CommandXboxController controller){
@@ -59,11 +64,15 @@ public class SwerveDrive extends SubsystemBase{
 
        setStates(chassisSpeeds);
 
+       updateModules();
+
+        
+
        publisher.set(new SwerveModuleState[]{
-        frontLeftModule.getState(), 
-        frontRightModule.getState(), 
-        backLeftModule.getState(), 
-        backRightModule.getState()
+        frontLeftModule.getDesiredState(), 
+        frontRightModule.getDesiredState(), 
+        backLeftModule.getDesiredState(), 
+        backRightModule.getDesiredState()
        });
     }
 }
