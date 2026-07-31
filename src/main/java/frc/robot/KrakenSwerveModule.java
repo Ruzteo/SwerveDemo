@@ -59,7 +59,7 @@ public class KrakenSwerveModule {
 
         drivePID = new PIDController(0.1, 0, 0); 
 
-        
+
         angleFF = new SimpleMotorFeedforward(kS, kV, kA);
         TrapezoidProfile.Constraints angle_constraits = new TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
         anglePID = new ProfiledPIDController(kP, kI, kD, angle_constraits, kDt);
@@ -93,9 +93,12 @@ public class KrakenSwerveModule {
         double desiredAngleRad = desiredState.angle.getRadians();
         anglePID.setGoal(desiredAngleRad);
 
-        double voltage = anglePID.calculate(currentAngleRad);
+        double voltagePID = anglePID.calculate(currentAngleRad);
+        double voltageFF = angleFF.calculate(anglePID.getGoal().velocity); 
+        double voltage = voltageFF + voltagePID; 
+        voltage = MathUtil.clamp(voltage,-12, 12);
+    
 
-        voltage = MathUtil.clamp(voltage, -12, 12);
         angleSim.setInputVoltage(voltage);
         angleSim.update(kDt);
         
@@ -103,9 +106,6 @@ public class KrakenSwerveModule {
         SmartDashboard.putNumber("CurrentAngle: ", Math.toDegrees(currentAngleRad));
         SmartDashboard.putNumber("Error: ", anglePID.getPositionError());
         SmartDashboard.putNumber("Velocity: ", angleSim.getAngularVelocityRadPerSec());
-
-        //System.out.println("DesiredAngle: " + Math.toDegrees(desiredAngleRad) + " CurrentAngle: " + Math.toDegrees(currentAngleRad));
-        
     }
 
     public void calculateDrive(){
