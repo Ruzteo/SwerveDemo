@@ -13,8 +13,10 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
-public class KrakenSwerveModule {
+public class SwerveModule {
     private SwerveModuleState desiredState;
     private SwerveModuleState currentState;  
     private Translation2d position; 
@@ -22,22 +24,25 @@ public class KrakenSwerveModule {
     private static double kDt = 0.02; 
     private static double kMaxVelocity = 1.75; 
     private static double kMaxAcceleration = 0.75; 
+
     private static double kP = 1.0; 
     private static double kI = 0.0;
     private static double kD = 0.7;
+
     private static double kS = 1.1;
     private static double kA = 0;
     private static double kV = 1.3;
 
-    private PIDController drivePID; 
-    private ProfiledPIDController anglePID; 
+      
 
-    private SimpleMotorFeedforward angleFF; 
+    private final ProfiledPIDController drivePID; 
+    private final ProfiledPIDController anglePID; 
 
-    private TrapezoidProfile angle_profile; 
+    private final SimpleMotorFeedforward angleFF; 
+    private final SimpleMotorFeedforward driveFF; 
 
     private TalonFX driveMotor; 
-    private TalonFX angleMotor; 
+    private TalonFX angleMotor;     
     private AbsoluteEncoder angleEncoder; 
 
     DCMotorSim angleSim = new DCMotorSim(
@@ -50,15 +55,12 @@ public class KrakenSwerveModule {
             DCMotor.getKrakenX60(1), 0.01, 1), 
             DCMotor.getKrakenX60(1));
 
-    public KrakenSwerveModule(Translation2d position, int driveMotorID, int angleMotorID, int encoderID){
+    public SwerveModule(Translation2d position, int driveMotorID, int angleMotorID, int encoderID){
 
         desiredState = new SwerveModuleState();
         this.position = position; 
         driveMotor = new TalonFX(driveMotorID);
         angleMotor = new TalonFX(angleMotorID);
-
-        drivePID = new PIDController(0.1, 0, 0); 
-
 
         angleFF = new SimpleMotorFeedforward(kS, kV, kA);
         TrapezoidProfile.Constraints angle_constraits = new TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
@@ -84,7 +86,7 @@ public class KrakenSwerveModule {
         return position; 
     }
 
-    public void calculateAngle(){
+    private void calculateAngle(){
     
         double currentAngleRad = angleSim.getAngularPositionRad();
         Rotation2d currentAngle = new Rotation2d(currentAngleRad);
@@ -108,14 +110,18 @@ public class KrakenSwerveModule {
         SmartDashboard.putNumber("Velocity: ", angleSim.getAngularVelocityRadPerSec());
     }
 
-    public void calculateDrive(){
-        //TODO
+    private void calculateDrive(){
+        
+        
+
     }
 
-    public void Update(){//call periodically 
+    private void Update(){//call periodically 
         calculateAngle();
         calculateDrive();
     }
+
+    
     
 }
 
