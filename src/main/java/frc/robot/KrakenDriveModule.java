@@ -43,7 +43,7 @@ public class KrakenDriveModule {
         if(Constants.SwerveConstants.isSim){
 
         double currentVelocityRad = driveSim.getAngularVelocityRadPerSec();
-        double currentVelocity = currentVelocityRad / Units.inchesToMeters(2);
+        double currentVelocity = currentVelocityRad / Units.inchesToMeters(2);// needs to be teh radious of the wheels 
         double desiredvelocity = desiredState.speedMetersPerSecond; 
         drivePID.setGoal(desiredvelocity);
 
@@ -55,6 +55,9 @@ public class KrakenDriveModule {
         driveSim.setInputVoltage(voltage);
         driveSim.update(Constants.SwerveConstants.kDt);
         }
+        else{
+            //TODO 
+        } 
     }
 
     public void setDesiredState(SwerveModuleState state){
