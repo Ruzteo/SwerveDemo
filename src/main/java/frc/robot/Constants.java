@@ -29,9 +29,7 @@ public final class Constants {
         public static final double kDriveFF_S = 1.1;  
         public static final double kDriveFF_A = 0.0;  
         public static final double kDriveFF_V = 1.3;
-        
-        
 
-      
+        public static final double wheelRadiousInches = 2; 
     }
 }

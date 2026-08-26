@@ -1,4 +1,7 @@
 package frc.robot;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -8,7 +11,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class KrakenDriveModule {
     private int ID; 
@@ -39,13 +44,12 @@ public class KrakenDriveModule {
        }
     }
 
-    public void Update(){
+    public void setVelocity(double desiredVelocity){
         if(Constants.SwerveConstants.isSim){
 
         double currentVelocityRad = driveSim.getAngularVelocityRadPerSec();
-        double currentVelocity = currentVelocityRad / Units.inchesToMeters(2);// needs to be teh radious of the wheels 
-        double desiredvelocity = desiredState.speedMetersPerSecond; 
-        drivePID.setGoal(desiredvelocity);
+        double currentVelocity = currentVelocityRad / Units.inchesToMeters(2);// needs to be the radious of the wheels 
+        drivePID.setGoal(desiredVelocity);
 
         double voltagePID = drivePID.calculate(currentVelocity);
         double voltageFF = driveFF.calculate(drivePID.getGoal().velocity); 
@@ -60,12 +64,12 @@ public class KrakenDriveModule {
         } 
     }
 
-    public void setDesiredState(SwerveModuleState state){
-        desiredState = state; 
-    }
-
-    public SwerveModuleState getDesiredState(){
-        return desiredState; 
+    public double getVelocity(){
+        if(Constants.SwerveConstants.isSim){
+            return driveSim.getAngularVelocityRadPerSec() / 
+            Units.inchesToMeters(Constants.SwerveConstants.wheelRadiousInches);
+        }
+        else{return 0d;}
     }
 
 

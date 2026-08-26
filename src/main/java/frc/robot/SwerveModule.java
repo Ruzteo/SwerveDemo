@@ -35,8 +35,8 @@ public class SwerveModule {
 
     
     public void Update(){//Updates the updates 
-        angle.Update();
-        drive.Update();
+        drive.setVelocity(desiredState.speedMetersPerSecond);
+        desiredState.optimize(null);
     }
 
     

@@ -1,4 +1,7 @@
 package frc.robot;
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
@@ -9,6 +12,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class KrakenAngleModule {
@@ -43,18 +50,14 @@ public class KrakenAngleModule {
        }
     }
 
-    public void Update(){
+    public void setAngle(double desiredAngle){
         if(Constants.SwerveConstants.isSim){
 
-        double currentAngleRad = angleSim.getAngularPositionRad();
-        Rotation2d currentAngle = new Rotation2d(currentAngleRad);
+        Double currentAngle = angleSim.getAngularPosition().in(Degrees);
+        anglePID.setGoal(desiredAngle);
 
-        desiredState.optimize(currentAngle); 
-        double desiredAngleRad = desiredState.angle.getRadians();
-        anglePID.setGoal(desiredAngleRad);
-
-        double voltagePID = anglePID.calculate(currentAngleRad);
-        double voltageFF = angleFF.calculate(anglePID.getGoal().velocity); 
+        double voltagePID = anglePID.calculate(currentAngle);
+        double voltageFF = angleFF.calculate(anglePID.getGoal().position); 
         double voltage = voltageFF + voltagePID; 
         voltage = MathUtil.clamp(voltage,-12, 12);
     
@@ -66,14 +69,14 @@ public class KrakenAngleModule {
             //TODO 
         } 
     }
-
-    public void setDesiredState(SwerveModuleState state){
-        desiredState = state; 
+    
+    public Double getAngle(){
+        if(Constants.SwerveConstants.isSim){
+            return angleSim.getAngularPosition().in(Degrees);
+        }
+        else{
+            return 0d;
+            //TODO
+        }
     }
-
-    public SwerveModuleState getDesiredState(){
-        return desiredState; 
-    }
-
-
 }
