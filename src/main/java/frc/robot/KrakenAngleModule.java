@@ -50,11 +50,11 @@ public class KrakenAngleModule {
        }
     }
 
-    public void setAngle(double desiredAngle){
+    public void setAngle(Rotation2d desiredAngle){
         if(Constants.SwerveConstants.isSim){
 
         Double currentAngle = angleSim.getAngularPosition().in(Degrees);
-        anglePID.setGoal(desiredAngle);
+        anglePID.setGoal(desiredAngle.getDegrees());
 
         double voltagePID = anglePID.calculate(currentAngle);
         double voltageFF = angleFF.calculate(anglePID.getGoal().position); 
@@ -70,13 +70,10 @@ public class KrakenAngleModule {
         } 
     }
     
-    public Double getAngle(){
+    public Rotation2d getAngle(){
         if(Constants.SwerveConstants.isSim){
-            return angleSim.getAngularPosition().in(Degrees);
+            return new Rotation2d(angleSim.getAngularPositionRad());
         }
-        else{
-            return 0d;
-            //TODO
-        }
+        else{return null;}
     }
 }

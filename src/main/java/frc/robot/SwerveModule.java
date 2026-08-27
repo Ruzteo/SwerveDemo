@@ -1,6 +1,7 @@
 package frc.robot;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class SwerveModule {
@@ -36,7 +37,8 @@ public class SwerveModule {
     
     public void Update(){//Updates the updates 
         drive.setVelocity(desiredState.speedMetersPerSecond);
-        desiredState.optimize(null);
+        angle.setAngle(desiredState.angle);
+    
     }
 
     

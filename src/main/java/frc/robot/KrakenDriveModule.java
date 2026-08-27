@@ -66,8 +66,8 @@ public class KrakenDriveModule {
 
     public double getVelocity(){
         if(Constants.SwerveConstants.isSim){
-            return driveSim.getAngularVelocityRadPerSec() / 
-            Units.inchesToMeters(Constants.SwerveConstants.wheelRadiousInches);
+            return driveSim.getAngularVelocityRadPerSec();
+            
         }
         else{return 0d;}
     }
