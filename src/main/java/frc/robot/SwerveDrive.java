@@ -13,6 +13,7 @@ public class SwerveDrive extends SubsystemBase{
     private CommandXboxController controller; 
 
     private final StructArrayPublisher<SwerveModuleState> publisher; 
+    private final StructArrayPublisher<SwerveModuleState> statePublisher; 
 
     double chasisHeight = 0.60; 
     double chasisWidth = 0.60; 
@@ -34,21 +35,15 @@ public class SwerveDrive extends SubsystemBase{
 
     public void setStates(ChassisSpeeds desired){
         SwerveModuleState[] newStates = kinematics.toSwerveModuleStates(desired);
-        swerveArray[0].updateDesiredState(newStates[0]);
-        swerveArray[1].updateDesiredState(newStates[1]);
-        swerveArray[2].updateDesiredState(newStates[2]);
-        swerveArray[3].updateDesiredState(newStates[3]);
+        swerveArray[0].setDesiredState(newStates[0]);
+        swerveArray[1].setDesiredState(newStates[1]);
+        swerveArray[2].setDesiredState(newStates[2]);
+        swerveArray[3].setDesiredState(newStates[3]);
     }
 
-    public void updateModules(){
-        swerveArray[0].Update();
-        swerveArray[1].Update();
-        swerveArray[2].Update();
-        swerveArray[3].Update();
-    }
-    
     public SwerveDrive(CommandXboxController controller){
         publisher = NetworkTableInstance.getDefault().getStructArrayTopic("/swerveStates", SwerveModuleState.struct).publish();
+        statePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/realswerveStates", SwerveModuleState.struct).publish(); 
         this.controller = controller; 
     }
 
@@ -64,15 +59,18 @@ public class SwerveDrive extends SubsystemBase{
 
        setStates(chassisSpeeds);
 
-       updateModules();
-
-        
-
        publisher.set(new SwerveModuleState[]{
         frontLeftModule.getDesiredState(), 
         frontRightModule.getDesiredState(), 
         backLeftModule.getDesiredState(), 
         backRightModule.getDesiredState()
+       });
+
+       statePublisher.set(new SwerveModuleState[]{
+        frontLeftModule.getCurrentState(), 
+        frontRightModule.getCurrentState(), 
+        backLeftModule.getCurrentState(), 
+        backRightModule.getCurrentState()
        });
     }
 }
