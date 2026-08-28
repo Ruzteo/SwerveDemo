@@ -1,10 +1,9 @@
 package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,17 +13,11 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class KrakenSwerveModule{
-    private SwerveModuleState desiredState; 
     private SwerveModuleState state; 
     private Translation2d position; 
 
@@ -38,7 +31,7 @@ public class KrakenSwerveModule{
     private static double kA = 0;
     private static double kV = 1.3;
 
-    private ProfiledPIDController drivePID; 
+    private PIDController drivePID; 
     private SimpleMotorFeedforward driveFeedforward; 
 
     private ProfiledPIDController anglePID; 
@@ -48,7 +41,6 @@ public class KrakenSwerveModule{
     private TalonFX angleMotor; 
     private AbsoluteEncoder angleEncoder; 
 
-    private SysIdRoutine routine; 
 
     DCMotorSim angleSim = new DCMotorSim(
         LinearSystemId.createDCMotorSystem(
@@ -62,15 +54,12 @@ public class KrakenSwerveModule{
 
     public KrakenSwerveModule(Translation2d position, int driveMotorID, int angleMotorID, int encoderID){
 
-        desiredState = new SwerveModuleState();
-
         this.position = position; 
         driveMotor = new TalonFX(driveMotorID);
         angleMotor = new TalonFX(angleMotorID);
 
-        drivePID = new ProfiledPIDController(
-            1.0, 0, 0, new TrapezoidProfile.Constraints(1.75, 0.75));
-        driveFeedforward = new SimpleMotorFeedforward(1, 1.3, 0);
+        drivePID = new PIDController(4, 0, 0);
+        driveFeedforward = new SimpleMotorFeedforward(0, 2.8, 0);
 
         anglePID = new ProfiledPIDController(
             10, 0, 0.1, new TrapezoidProfile.Constraints(20, 10));
