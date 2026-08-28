@@ -21,16 +21,6 @@ public class KrakenSwerveModule{
     private SwerveModuleState state; 
     private Translation2d position; 
 
-    private static double kDt = 0.02; 
-    private static double kMaxVelocity = 1.75; 
-    private static double kMaxAcceleration = 0.75; 
-    private static double kP = 1.0; 
-    private static double kI = 0.0;
-    private static double kD = 0.7;
-    private static double kS = 1.1;
-    private static double kA = 0;
-    private static double kV = 1.3;
-
     private PIDController drivePID; 
     private SimpleMotorFeedforward driveFeedforward; 
 
@@ -58,13 +48,30 @@ public class KrakenSwerveModule{
         driveMotor = new TalonFX(driveMotorID);
         angleMotor = new TalonFX(angleMotorID);
 
-        drivePID = new PIDController(4, 0, 0);
-        driveFeedforward = new SimpleMotorFeedforward(0, 2.8, 0);
+        drivePID = new PIDController(
+            Constants.SwerveConstants.kDrive_kp, 
+            Constants.SwerveConstants.kDrive_ki, 
+            Constants.SwerveConstants.kDrive_kd);
+
+        driveFeedforward = new SimpleMotorFeedforward(
+            Constants.SwerveConstants.kDrive_ks,
+            Constants.SwerveConstants.kDrive_kv, 
+            Constants.SwerveConstants.kDrive_ka);
 
         anglePID = new ProfiledPIDController(
-            10, 0, 0.1, new TrapezoidProfile.Constraints(20, 10));
+            Constants.SwerveConstants.kAngle_kp,
+            Constants.SwerveConstants.kAngle_ki,
+            Constants.SwerveConstants.kAngle_kd, 
+            new TrapezoidProfile.Constraints(
+                Constants.SwerveConstants.kAngleMaxVelocity, Constants.SwerveConstants.kAngleMaxAccel));
         anglePID.enableContinuousInput(-Math.PI, Math.PI);
-        angleFeedforward = new SimpleMotorFeedforward(0, 0.28, 0);
+
+        angleFeedforward = new SimpleMotorFeedforward(
+            Constants.SwerveConstants.kAngle_ks,
+            Constants.SwerveConstants.kAngle_kv,
+            Constants.SwerveConstants.kAngle_ka);
+
+        //TODO: add jitter prevention 
     }
 
     public Translation2d getPosition(){
@@ -78,7 +85,7 @@ public class KrakenSwerveModule{
 
 
         double driveOut = drivePID.calculate(
-            driveSim.getAngularVelocityRadPerSec() * Units.inchesToMeters(2), state.speedMetersPerSecond); 
+            driveSim.getAngularVelocityRadPerSec() * Units.inchesToMeters(Constants.SwerveConstants.kWheelDiameter), state.speedMetersPerSecond); 
         double driveFFout = driveFeedforward.calculate(state.speedMetersPerSecond); 
 
         double driveVoltage = MathUtil.clamp((driveOut + driveFFout), -12, 12);
@@ -89,26 +96,26 @@ public class KrakenSwerveModule{
 
         double angleVoltage = MathUtil.clamp((angleOut + angleFFout), -12, 12);
 
-        SmartDashboard.putNumber("driveVoltage", driveVoltage);
-        SmartDashboard.putNumber("angleVoltage", angleVoltage);
+        //SmartDashboard.putNumber("driveVoltage", driveVoltage);
+        //SmartDashboard.putNumber("angleVoltage", angleVoltage);
 
         driveSim.setInputVoltage(driveVoltage);
         angleSim.setInputVoltage(angleVoltage); 
 
-        driveSim.update(kDt);
-        angleSim.update(kDt);
+        driveSim.update(Constants.SwerveConstants.kDt);
+        angleSim.update(Constants.SwerveConstants.kDt);
 
-        SmartDashboard.putNumber("angleWanted", state.angle.getDegrees());
-        SmartDashboard.putNumber("angleReal", angleSim.getAngularPosition().in(Degrees));
+        //SmartDashboard.putNumber("angleWanted", state.angle.getDegrees());
+        //SmartDashboard.putNumber("angleReal", angleSim.getAngularPosition().in(Degrees));
 
-        SmartDashboard.putNumber("driveWanted", state.speedMetersPerSecond);
-        SmartDashboard.putNumber("driveReal", driveSim.getAngularVelocityRadPerSec()  * Units.inchesToMeters(2));
+        //SmartDashboard.putNumber("driveWanted", state.speedMetersPerSecond);
+        //SmartDashboard.putNumber("driveReal", driveSim.getAngularVelocityRadPerSec()  * Units.inchesToMeters(2));
 
     }
 
     public SwerveModuleState getCurrentState(){
         return new SwerveModuleState(
-            driveSim.getAngularVelocityRadPerSec() * Units.inchesToMeters(2),
+            driveSim.getAngularVelocityRadPerSec() * Units.inchesToMeters(Constants.SwerveConstants.kWheelDiameter),
             new Rotation2d(angleSim.getAngularPositionRad()));
     }
 
