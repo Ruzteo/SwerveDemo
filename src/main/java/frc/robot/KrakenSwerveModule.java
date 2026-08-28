@@ -1,13 +1,12 @@
 package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.estimator.SteadyStateKalmanFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -15,11 +14,16 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
-public class KrakenSwerveModule {
+public class KrakenSwerveModule{
     private SwerveModuleState desiredState; 
     private SwerveModuleState state; 
     private Translation2d position; 
@@ -44,6 +48,8 @@ public class KrakenSwerveModule {
     private TalonFX angleMotor; 
     private AbsoluteEncoder angleEncoder; 
 
+    private SysIdRoutine routine; 
+
     DCMotorSim angleSim = new DCMotorSim(
         LinearSystemId.createDCMotorSystem(
             DCMotor.getKrakenX60(1), 0.025, 12.8), 
@@ -66,13 +72,10 @@ public class KrakenSwerveModule {
             1.0, 0, 0, new TrapezoidProfile.Constraints(1.75, 0.75));
         driveFeedforward = new SimpleMotorFeedforward(1, 1.3, 0);
 
-
         anglePID = new ProfiledPIDController(
-            0, 0, 0.7, new TrapezoidProfile.Constraints(1.75, 0.75));
+            10, 0, 0.1, new TrapezoidProfile.Constraints(20, 10));
         anglePID.enableContinuousInput(-Math.PI, Math.PI);
-        angleFeedforward = new SimpleMotorFeedforward(1, 1.3, 0);
-
-        
+        angleFeedforward = new SimpleMotorFeedforward(0, 0.28, 0);
     }
 
     public Translation2d getPosition(){
@@ -82,7 +85,7 @@ public class KrakenSwerveModule {
     public void setDesiredState(SwerveModuleState desiredState){
         state = desiredState; 
 
-        //state.optimize(new Rotation2d(angleSim.getAngularPositionRad()));
+        state.optimize(new Rotation2d(angleSim.getAngularPositionRad()));
 
 
         double driveOut = drivePID.calculate(
@@ -124,9 +127,6 @@ public class KrakenSwerveModule {
         return state; 
     }
 
-   
-
-   
     
 }
 
