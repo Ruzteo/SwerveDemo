@@ -15,22 +15,22 @@ public class SwerveDrive extends SubsystemBase{
     private final StructArrayPublisher<SwerveModuleState> publisher; 
     private final StructArrayPublisher<SwerveModuleState> statePublisher; 
 
-    double chasisHeight = 0.60; 
-    double chasisWidth = 0.60; 
+    private double chasisHeight = 0.60; 
+    private double chasisWidth = 0.60; 
 
-    Translation2d frontleft = new Translation2d(chasisHeight / 2, chasisWidth / 2);
-    Translation2d frontRight = new Translation2d(chasisHeight / 2, -chasisWidth / 2);
-    Translation2d backLeft = new Translation2d(-chasisHeight / 2, chasisWidth / 2);
-    Translation2d backRight = new Translation2d(-chasisHeight / 2, -chasisWidth / 2);
+    private Translation2d frontleft = new Translation2d(chasisHeight / 2, chasisWidth / 2);
+    private Translation2d frontRight = new Translation2d(chasisHeight / 2, -chasisWidth / 2);
+    private Translation2d backLeft = new Translation2d(-chasisHeight / 2, chasisWidth / 2);
+    private Translation2d backRight = new Translation2d(-chasisHeight / 2, -chasisWidth / 2);
 
-    KrakenSwerveModule frontLeftModule = new KrakenSwerveModule(frontleft, 1, 2, 3);
-    KrakenSwerveModule frontRightModule = new KrakenSwerveModule(frontRight, 4, 5, 6);
-    KrakenSwerveModule backLeftModule = new KrakenSwerveModule(backLeft, 7, 8, 9);
-    KrakenSwerveModule backRightModule = new KrakenSwerveModule(backRight, 10, 11, 12);
+    private KrakenSwerveModule frontLeftModule = new KrakenSwerveModule(frontleft, 1, 2, 3);
+    private KrakenSwerveModule frontRightModule = new KrakenSwerveModule(frontRight, 4, 5, 6);
+    private KrakenSwerveModule backLeftModule = new KrakenSwerveModule(backLeft, 7, 8, 9);
+    private KrakenSwerveModule backRightModule = new KrakenSwerveModule(backRight, 10, 11, 12);
 
-    KrakenSwerveModule[] swerveArray = new KrakenSwerveModule[]{frontLeftModule, frontRightModule, backLeftModule, backRightModule};
+    private KrakenSwerveModule[] swerveArray = new KrakenSwerveModule[]{frontLeftModule, frontRightModule, backLeftModule, backRightModule};
 
-    SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+    private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
         swerveArray[0].getPosition(), swerveArray[1].getPosition(), swerveArray[2].getPosition(), swerveArray[3].getPosition());
 
     public void setStates(ChassisSpeeds desired){
@@ -45,8 +45,37 @@ public class SwerveDrive extends SubsystemBase{
         publisher = NetworkTableInstance.getDefault().getStructArrayTopic("/swerveStates", SwerveModuleState.struct).publish();
         statePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("/realswerveStates", SwerveModuleState.struct).publish(); 
         this.controller = controller; 
+        
+        setDefaultCommand(new JoysticDriveCommand(this));
+    }
+    
+    public void drive(){
+        chassisSpeeds = new ChassisSpeeds(
+        controller.getLeftY(),
+
+        controller.getLeftX(), 
+
+        controller.getRightX()
+       );
+
+       setStates(chassisSpeeds);
+
+       publisher.set(new SwerveModuleState[]{
+        frontLeftModule.getDesiredState(), 
+        frontRightModule.getDesiredState(), 
+        backLeftModule.getDesiredState(), 
+        backRightModule.getDesiredState()
+       });
+
+       statePublisher.set(new SwerveModuleState[]{
+        frontLeftModule.getCurrentState(), 
+        frontRightModule.getCurrentState(), 
+        backLeftModule.getCurrentState(), 
+        backRightModule.getCurrentState()
+       });
     }
 
+    /* 
     @Override
     public void periodic() {
        chassisSpeeds = new ChassisSpeeds(
@@ -73,4 +102,6 @@ public class SwerveDrive extends SubsystemBase{
         backRightModule.getCurrentState()
        });
     }
+    */
+    
 }
