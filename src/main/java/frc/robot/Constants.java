@@ -14,8 +14,8 @@ public class Constants {
         public static final double kAngle_kv = 0.28; 
         public static final double kAngle_ka = 0; 
 
-        public static final double kAngleMaxVelocity = 20; 
-        public static final double kAngleMaxAccel = 10; 
+        public static final double kAngleMaxVelocity = 30; 
+        public static final double kAngleMaxAccel = 25; 
 
 
         public static final double kDrive_kp = 4; 

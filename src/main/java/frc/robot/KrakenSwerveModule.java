@@ -71,7 +71,6 @@ public class KrakenSwerveModule{
             Constants.SwerveConstants.kAngle_kv,
             Constants.SwerveConstants.kAngle_ka);
 
-        //TODO: add jitter prevention 
     }
 
     public Translation2d getPosition(){
@@ -82,14 +81,16 @@ public class KrakenSwerveModule{
         state = desiredState; 
 
         state.optimize(new Rotation2d(angleSim.getAngularPositionRad()));
+        double driveVoltage = 0; 
 
-
+        if(state.speedMetersPerSecond > 0.001){
         double driveOut = drivePID.calculate(
-            driveSim.getAngularVelocityRadPerSec() * Units.inchesToMeters(Constants.SwerveConstants.kWheelDiameter), state.speedMetersPerSecond); 
+        driveSim.getAngularVelocityRadPerSec() * Units.inchesToMeters(Constants.SwerveConstants.kWheelDiameter), state.speedMetersPerSecond); 
         double driveFFout = driveFeedforward.calculate(state.speedMetersPerSecond); 
 
-        double driveVoltage = MathUtil.clamp((driveOut + driveFFout), -12, 12);
-
+        driveVoltage = MathUtil.clamp((driveOut + driveFFout), -12, 12);
+        }
+      
         double angleOut = anglePID.calculate(
             angleSim.getAngularPositionRad(), state.angle.getRadians());
         double angleFFout = angleFeedforward.calculate(anglePID.getSetpoint().velocity); 
@@ -103,6 +104,7 @@ public class KrakenSwerveModule{
         angleSim.setInputVoltage(angleVoltage); 
 
         driveSim.update(Constants.SwerveConstants.kDt);
+
         angleSim.update(Constants.SwerveConstants.kDt);
 
         //SmartDashboard.putNumber("angleWanted", state.angle.getDegrees());
